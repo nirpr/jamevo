@@ -1,13 +1,22 @@
 from fastapi import FastAPI, HTTPException, Body, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from database import create_user_table, insert_user, get_user_by_username, verify_password, get_user_role
 from songs import search_songs, get_song_by_filename
 from ConnectionManager import ConnectionManager
 
 
 manager = ConnectionManager()
-app = FastAPI()
 current_song = None
 logged_in_users = set()
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Allow requests from React frontend
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 @app.websocket("/ws")
@@ -61,18 +70,10 @@ def logout(data: dict = Body(...)):
 
 @app.post("/signup/")
 def signup(data: dict = Body(...)):
+    role = data["role"]
     try:
-        insert_user(data['username'], data['password'], 'user', data['instrument'])
-        return {"message": f"{data['username']} registered successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.post("/signup/admin/")
-def signup(data: dict = Body(...)):
-    try:
-        insert_user(data['username'], data['password'], 'admin', data['instrument'])
-        return {"message": f"{data['username']} registered successfully as admin"}
+        insert_user(data['username'], data['password'], role, data['instrument'])
+        return {"message": f"{data['username']} registered successfully as {role}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -114,6 +115,16 @@ def get_current_song():
     if not current_song:
         raise HTTPException(status_code=404, detail="No song selected")
     return current_song
+
+
+@app.get("/get-role/")
+def get_role_from_db(username: str):
+    if username not in logged_in_users:
+        raise HTTPException(status_code=400, detail="User not logged in")
+    role = get_user_role(username)
+    return {"role": role}
+
+
 
 
 create_user_table()
