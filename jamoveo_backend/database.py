@@ -1,7 +1,7 @@
 import sqlite3
 import bcrypt
 
-DATABASE_URL = "jamevo.db"
+DATABASE_URL = "jamoveo.db"
 
 
 def get_db_connection():
