@@ -87,126 +87,129 @@ function Live() {
     );
   }
 
+  // Reusable Button Style Function
+  function buttonStyle(bgColor, textColor) {
+    return {
+      backgroundColor: bgColor,
+      color: textColor,
+      border: "none",
+      borderRadius: "10px",
+      padding: "10px 15px",
+      fontSize: "1em",
+      cursor: "pointer",
+      transition: "background 0.3s",
+      flex: "1",
+      margin: "0 5px"
+    };
+  }
+
   return (
     <div style={{
       textAlign: "center",
-      padding: "20px",
+      padding: "15px",
       backgroundColor: "#111",
       color: "#fff",
-      height: "96vh",
+      height: "100vh",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "center"
+      justifyContent: "center",
+      alignItems: "center"
     }}>
-    <h1 style={{
-      fontSize: "2.5em",
-      fontWeight: "bold",
-      color: "#519bd2",
-      marginBottom: "20px",
-      direction: songData ? (isHebrewSong(songData) ? "rtl" : "ltr") : "ltr"
-    }}>
-      {sessionStorage.getItem("selectedSongName")}
-    </h1>
-
-    <h3 style={{
-      fontSize: "1.2em",
-      fontWeight: "normal",
-      color: "#aaa",
-      marginBottom: "20px",
-      direction: songData ? (isHebrewSong(songData) ? "rtl" : "ltr") : "ltr"
-    }}>
-      by {sessionStorage.getItem("selectedSongAuthor") || "Unknown"}
-    </h3>
-
-    {songData && Array.isArray(songData) ? (
-      <div id="songContent" style={{
-        fontSize: "1.5em",
-        whiteSpace: "pre-wrap",
-        overflowY: "auto",
-        height: "75vh",
-        padding: "15px",
-        margin: "0 auto",
-        maxWidth: "650px",
-        border: "2px solid #444",
-        backgroundColor: "#222",
-        color: "#eee",
-        borderRadius: "8px",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.5)",
+      {/* Song Title */}
+      <h1 style={{
+        fontSize: "clamp(1.8em, 4vw, 2.5em)", // Responsive font-size
+        fontWeight: "bold",
+        color: "#519bd2",
+        marginBottom: "10px",
+        direction: songData ? (isHebrewSong(songData) ? "rtl" : "ltr") : "ltr",
+        maxWidth: "90%", // Prevents overflow
+        textAlign: "center",
+      }}>
+        {sessionStorage.getItem("selectedSongName")}
+      </h1>
+  
+      {/* Author */}
+      <h3 style={{
+        fontSize: "clamp(1em, 3vw, 1.2em)",
+        fontWeight: "normal",
+        color: "#aaa",
+        marginBottom: "15px",
         direction: songData ? (isHebrewSong(songData) ? "rtl" : "ltr") : "ltr"
       }}>
-      {songData.slice(1).map((line, index) => ( // Skip the first element (metadata)
-        Array.isArray(line) ? (
-          <div key={index} style={{ display: "flex", justifyContent: "center", gap: "15px", marginBottom: "10px" }}>
-            {line.map((word, i) => (
-              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: "50px" }}>
-                <span style={{
-                  fontSize: "1em",
-                  fontWeight: "bold",
-                  color: word.chords ? "#b2d8d8" : "transparent",
-                  height: "1.2em",
-                  display: "block",
-                  visibility: sessionStorage.getItem("instrument") === "vocals" ? "hidden" : "visible"
-                }}>
-                  {word.chords || " "}
-                </span>
-                <span style={{ fontSize: "1.3em", color: "#fff" }}>{word.lyrics}</span>
+        by {sessionStorage.getItem("selectedSongAuthor") || "Unknown"}
+      </h3>
+  
+      {/* Lyrics Container */}
+      {songData && Array.isArray(songData) ? (
+        <div id="songContent" style={{
+          fontSize: "1.3em",
+          whiteSpace: "pre-wrap",
+          overflowY: "auto",
+          height: "70vh",
+          padding: "10px",
+          margin: "0 auto",
+          width: "95%", // Scales properly for mobile
+          maxWidth: "600px", // Avoids overly wide display on desktop
+          border: "2px solid #444",
+          backgroundColor: "#222",
+          color: "#eee",
+          borderRadius: "8px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.5)",
+          direction: songData ? (isHebrewSong(songData) ? "rtl" : "ltr") : "ltr"
+        }}>
+          {songData.slice(1).map((line, index) => (
+            Array.isArray(line) ? (
+              <div key={index} style={{ 
+                display: "flex", flexWrap: "wrap", justifyContent: "center", 
+                gap: "10px", marginBottom: "8px" 
+              }}>
+                {line.map((word, i) => (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: "40px" }}>
+                    <span style={{
+                      fontSize: "1em",
+                      fontWeight: "bold",
+                      color: word.chords ? "#b2d8d8" : "transparent",
+                      height: "1.2em",
+                      display: "block",
+                      visibility: sessionStorage.getItem("instrument") === "vocals" ? "hidden" : "visible"
+                    }}>
+                      {word.chords || " "}
+                    </span>
+                    <span style={{ fontSize: "1.3em", color: "#fff" }}>{word.lyrics}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : null
-      ))}
-    </div>
+            ) : null
+          ))}
+        </div>
       ) : (
         <p style={{ fontSize: "1.2em", color: "#519bd2" }}>Loading song...</p>
       )}
   
-      {/* Buttons Container */}
+      {/* Buttons */}
       <div style={{
         display: "flex",
         justifyContent: "space-between",
         width: "100%",
-        padding: "10px 20px",
-        marginTop: "auto"  
+        maxWidth: "400px",
+        marginTop: "15px"
       }}>
-        {/* Quit button for admin */}
+        {/* Quit Button (Admin Only) */}
         {sessionStorage.getItem("role") === "admin" && (
-          <button
-            onClick={handleQuit}
-            style={{
-              backgroundColor: "#d9534f",
-              color: "#fff",
-              border: "none",
-              borderRadius: "50px",
-              padding: "10px 20px",
-              fontSize: "1em",
-              cursor: "pointer",
-              transition: "background 0.3s"
-            }}
-          >
+          <button onClick={handleQuit} style={buttonStyle("#d9534f", "#fff")}>
             Quit
           </button>
         )}
   
-        {/* Auto-scroll button */}
-        <button
-          onClick={handleToggleScroll}
-          style={{
-            backgroundColor: isScrolling ? "#d9534f" : "#06a937",
-            color: "#000",
-            border: "none",
-            borderRadius: "50px",
-            padding: "10px 20px",
-            fontSize: "1em",
-            cursor: "pointer",
-            transition: "background 0.3s"
-          }}
-        >
+        {/* Auto-Scroll Button */}
+        <button onClick={handleToggleScroll} style={buttonStyle(isScrolling ? "#d9534f" : "#06a937", "#000")}>
           {isScrolling ? "Stop Scrolling" : "Start Scrolling"}
         </button>
       </div>
     </div>
   );
-   
+
 }
+  
 
 export default Live;

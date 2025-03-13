@@ -14,7 +14,9 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://jamoveo.vercel.app", "https://jamoveo-p2tf4i4y0-nirprs-projects.vercel.app"],
+    allow_origins=["https://jamoveo.vercel.app",
+                   "https://jamoveo-p2tf4i4y0-nirprs-projects.vercel.app",
+                   "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers

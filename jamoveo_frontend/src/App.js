@@ -15,11 +15,19 @@ function App() {
         <Route path="/" element={
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            height: "100vh", backgroundColor: "#111", color: "#fff"
+            height: "100vh", backgroundColor: "#111", color: "#fff", padding: "20px"
           }}>
-            <h1 style={{ fontSize: "2.5em", marginBottom: "30px" }}>Welcome to JaMoveo</h1>
+            <h1 style={{
+              fontSize: "2em", textAlign: "center", marginBottom: "20px",
+              maxWidth: "90%", lineHeight: "1.2"
+            }}>
+              Welcome to JaMoveo
+            </h1>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{
+              display: "flex", flexDirection: "column", gap: "12px",
+              width: "100%", maxWidth: "300px", textAlign: "center"
+            }}>
               <Link to="/signup">
                 <button style={buttonStyle}>Signup</button>
               </Link>
