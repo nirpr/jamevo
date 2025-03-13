@@ -32,6 +32,7 @@ function Player() {
       
           if (message.type === "song_selected") {
             sessionStorage.setItem("selectedSongName", message.song_name);
+            sessionStorage.setItem("selectedSongAuthor", message.author);
             sessionStorage.setItem("selectedSongData", JSON.stringify(message.data));
       
             navigate("/live");
