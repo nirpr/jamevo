@@ -14,3 +14,4 @@ async def connect_player():
             print("WebSocket connection closed!")
 
 asyncio.run(connect_player())
+

@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, Body, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from database import create_user_table, insert_user, get_user_by_username, verify_password, get_user_role
+from database import create_user_table, insert_user, get_user_by_username, verify_password,\
+    get_user_role, get_user_instrument
 from songs import search_songs, get_song_by_filename
 from ConnectionManager import ConnectionManager
+import json
 
 
 manager = ConnectionManager()
@@ -12,10 +14,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allow requests from React frontend
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -33,7 +35,10 @@ async def websocket_endpoint(websocket: WebSocket, username: str):
         while True:
             message = await websocket.receive_text()
 
-            if websocket == manager.admin:
+            if message == "QUIT":
+                print("Admin quit the session. Notifying all players...")
+                await manager.broadcast(json.dumps({"type": "QUIT"}))
+            elif websocket == manager.admin:
                 print(f"Admin sent: {message}")
                 await manager.broadcast(message)
 
@@ -73,6 +78,7 @@ def signup(data: dict = Body(...)):
     role = data["role"]
     try:
         insert_user(data['username'], data['password'], role, data['instrument'])
+        logged_in_users.add(data['username'])
         return {"message": f"{data['username']} registered successfully as {role}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -88,13 +94,8 @@ def search(query: str, username: str):
     return {"results": results}
 
 
-@app.post("/choose-song")
+@app.post("/choose-song/")
 async def choose_song(data: dict = Body(...)):
-    username = data["username"]
-    role = get_user_role(username)
-    if role != 'admin':
-        raise HTTPException(status_code=403, detail="Only admins can choose songs")
-
     global current_song
     filename = data["filename"]
     song = get_song_by_filename(filename)
@@ -102,12 +103,23 @@ async def choose_song(data: dict = Body(...)):
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
 
-    song_name = filename.replace(".json", "").replace("_", " ").title()
+    song_name = filename.replace(".json", "").replace("_", " ").title()  # Fallback
+    author = "Unknown"
+
+    if isinstance(song[0], dict):
+        song_name = song[0].get("name", song_name)
+        author = song[0].get("author", "Unknown")
 
     current_song = {"filename": filename, "data": song}
-    await manager.broadcast(f"New song selected: {song_name}")
 
-    return {"message": f"Selected song: {filename}"}
+    await manager.broadcast(json.dumps({
+        "type": "song_selected",
+        "song_name": song_name,
+        "author": author,
+        "data": song
+    }))
+
+    return {"name": song_name, "author": author, "data": song}
 
 
 @app.get("/current-song/")
@@ -125,6 +137,12 @@ def get_role_from_db(username: str):
     return {"role": role}
 
 
+@app.get("/get-instrument/")
+def get_instrument(username: str):
+    instrument = get_user_instrument(username)
+    if not instrument:
+        raise HTTPException(status_code=404, detail="Instrument not found")
+    return {"instrument": instrument}
 
 
 create_user_table()

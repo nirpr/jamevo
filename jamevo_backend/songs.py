@@ -10,8 +10,13 @@ def load_songs():
         if filename.endswith(".json"):
             with open(os.path.join(SONGS_DIR, filename), "r", encoding="utf-8") as f:
                 data = json.load(f)
-                song_name = filename.replace(".json", "").replace("_", " ").title()
-                songs.append({"name": song_name, "file": filename, "data": data})
+                song_name = filename.replace(".json", "").replace("_", " ").title()  # Fallback name
+                author = "Unknown"
+
+                if isinstance(data[0], dict):
+                    song_name = data[0].get("name", song_name)
+                    author = data[0].get("author", "Unknown")
+                songs.append({"name": song_name, "file": filename, "author": author})
     return songs
 
 

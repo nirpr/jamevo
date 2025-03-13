@@ -18,7 +18,7 @@ def create_user_table():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            role TEXT CHECK(role IN ('admin', 'user')) NOT NULL,
+            role TEXT CHECK(role IN ('admin', 'player')) NOT NULL,
             instrument TEXT
         )
     """)
@@ -64,5 +64,14 @@ def get_user_role(username):
     user = cursor.fetchone()
     conn.close()
     return user["role"] if user else None
+
+
+def get_user_instrument(username):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT instrument FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+    return user["instrument"] if user else None
 
 
