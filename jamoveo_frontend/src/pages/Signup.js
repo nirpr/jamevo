@@ -22,7 +22,7 @@ function Signup() {
     setMessage("");
 
     try {
-      await axios.post("http://localhost:8000/signup/", formData);
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/signup/`, formData);
 
       sessionStorage.setItem("username", formData.username);
       sessionStorage.setItem("role", formData.role);

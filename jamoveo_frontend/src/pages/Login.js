@@ -16,11 +16,11 @@ function Login() {
     setMessage("");
 
     try {
-      await axios.post("http://localhost:8000/login/", formData);
-      const role_response = await axios.get(`http://localhost:8000/get-role/?username=${formData.username}`);
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/login/`, formData);
+      const role_response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/get-role/?username=${formData.username}`);
       const role = role_response.data.role;
 
-      const inst_response = await axios.get(`http://localhost:8000/get-instrument/?username=${formData.username}`);
+      const inst_response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/get-instrument/?username=${formData.username}`);
       const instrument = inst_response.data.instrument;
       sessionStorage.setItem("username", formData.username);
       sessionStorage.setItem("role", role);

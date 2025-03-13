@@ -26,7 +26,7 @@ function Live() {
         return;
       }
 
-      axios.post("http://localhost:8000/choose-song/", { filename: fileName })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/choose-song/`, { filename: fileName })
         .then(response => {
           console.log("Song data received from backend:", response.data);
           setSongData(response.data.data);

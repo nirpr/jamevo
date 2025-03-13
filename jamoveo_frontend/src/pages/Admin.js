@@ -17,7 +17,11 @@ function Admin() {
     }
 
     if (!window.ws || window.ws.readyState === WebSocket.CLOSED) {
-      window.ws = new WebSocket(`ws://localhost:8000/ws?username=${username}`);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const wsProtocol = backendUrl.startsWith("https") ? "wss" : "ws"; // Auto-detect protocol
+
+      window.ws = new WebSocket(`${wsProtocol}://${new URL(backendUrl).host}/ws?username=${username}`);
+
 
       window.ws.onopen = () => {
         console.log("Admin connected to WebSocket");
@@ -36,7 +40,7 @@ function Admin() {
     if (!searchQuery.trim()) return; // Prevent empty searches
 
     try {
-      const response = await axios.get(`http://localhost:8000/search/?query=${searchQuery}&username=${sessionStorage.getItem("username")}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/search/?query=${searchQuery}&username=${sessionStorage.getItem("username")}`);
       
       // Save search results before navigating
       sessionStorage.setItem("searchResults", JSON.stringify(response.data.results));

@@ -15,7 +15,10 @@ function Player() {
     }
 
     if (!window.ws || window.ws.readyState === WebSocket.CLOSED) {
-      window.ws = new WebSocket(`ws://localhost:8000/ws?username=${username}`);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const wsProtocol = backendUrl.startsWith("https") ? "wss" : "ws"; // Auto-detect protocol
+
+      window.ws = new WebSocket(`${wsProtocol}://${new URL(backendUrl).host}/ws?username=${username}`);
 
       window.ws.onopen = () => {
         console.log("Connected to WebSocket");
